@@ -14,13 +14,20 @@ namespace AlexaThermostatSkill
 {
     public class Function
     {
+        IApiService _thermostatService;
+
+        public Function()
+        {
+            _thermostatService = new ThermostatApiService();
+        }
+
         /// <summary>
         /// The entrypoint for our Alexa Skill.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public SkillResponse FunctionHandler(SkillRequest input, ILambdaContext context)
+        public async Task<SkillResponse> FunctionHandlerAsync(SkillRequest input, ILambdaContext context)
         {
             LambdaLogger.Log("Skill Request Received");
 
@@ -38,10 +45,23 @@ namespace AlexaThermostatSkill
                 switch (request.Intent.Name)
                 {
                     case "GetTemperature":
+
+                        var temperature = await _thermostatService.GetTemperatureAsync(input.Session.User.AccessToken);
                         return CreateAudioResponse(new SsmlOutputSpeech()
                         {
-                            Ssml = "<speak>The current temperature is <say-as interpret-as='Number'>22</say-as> degrees</speak>"
+                            Ssml = $"<speak>The current temperature is <say-as interpret-as='number'>{temperature}</say-as> degrees</speak>"
                         });
+
+                    case "SetTemperature":
+
+                        var requestedTemperature = double.Parse(request.Intent.Slots["temperature"].Value);
+                        await _thermostatService.SetTemperatureAsync(input.Session.User.AccessToken, requestedTemperature);
+
+                        return CreateAudioResponse(new SsmlOutputSpeech()
+                        {
+                            Ssml = $"<speak>The temperature is set to <say-as interpret-as='number'>{requestedTemperature}</say-as> degrees</speak>"
+                        });
+
                     default:
                         return DefaultResponse();
                 }
