@@ -27,41 +27,26 @@ namespace AlexaThermostatSkill
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task<SkillResponse> FunctionHandlerAsync(SkillRequest input, ILambdaContext context)
+        public SkillResponse FunctionHandler(SkillRequest input, ILambdaContext context)
         {
             LambdaLogger.Log("Skill Request Received");
 
             if (input.Request.GetType() == typeof(LaunchRequest))
             {
-                return CreateAudioResponse(new SsmlOutputSpeech()
-                {
-                    Ssml = "<speak><prosody volume='x-loud'>Hello Devcon</prosody></speak>"
-                });
+                return CreateAudioResponse("<speak>Hi there, this is the devcon thermostat skill</speak>");
+
             }
             else if (input.Request.GetType() == typeof(IntentRequest))
             {
-                var request = input.Request as IntentRequest;
-
-                switch (request.Intent.Name)
+                var intent = input.Request as IntentRequest;
+                switch (intent.Intent.Name)
                 {
                     case "GetTemperature":
-
-                        var temperature = await _thermostatService.GetTemperatureAsync(input.Session.User.AccessToken);
-                        return CreateAudioResponse(new SsmlOutputSpeech()
-                        {
-                            Ssml = $"<speak>The current temperature is <say-as interpret-as='number'>{temperature}</say-as> degrees</speak>"
-                        });
-
+                        return CreateAudioResponse("<speak> The temperature is <say-as interpret-as='number'>22</say-as> degrees </speak>");
                     case "SetTemperature":
-
-                        var requestedTemperature = double.Parse(request.Intent.Slots["temperature"].Value);
-                        await _thermostatService.SetTemperatureAsync(input.Session.User.AccessToken, requestedTemperature);
-
-                        return CreateAudioResponse(new SsmlOutputSpeech()
-                        {
-                            Ssml = $"<speak>The temperature is set to <say-as interpret-as='number'>{requestedTemperature}</say-as> degrees</speak>"
-                        });
-
+                        var requestedTemperature = intent.Intent.Slots["temperature"].Value;
+                        //await _thermostatService.SetTemperatureAsync(input.Session.User.AccessToken, double.Parse(requestedTemperature));
+                        return CreateAudioResponse($"<speak>The temperature is set to  <say-as interpret-as='number'>{requestedTemperature}</say-as> degrees</speak>");
                     default:
                         return DefaultResponse();
                 }
@@ -73,7 +58,7 @@ namespace AlexaThermostatSkill
         }
 
 
-        private SkillResponse CreateAudioResponse(SsmlOutputSpeech message)
+        private SkillResponse CreateAudioResponse(string message)
         {
             var apiVersion = "1.0";
 
@@ -83,17 +68,17 @@ namespace AlexaThermostatSkill
                 Response = new ResponseBody()
                 {
                     ShouldEndSession = true,
-                    OutputSpeech = message
+                    OutputSpeech = new SsmlOutputSpeech()
+                    {
+                        Ssml = message
+                    }
                 }
             };
         }
 
         private SkillResponse DefaultResponse()
         {
-            return CreateAudioResponse(new SsmlOutputSpeech()
-            {
-                Ssml = "<speak>I don't know what you meant</speak>"
-            });
+            return CreateAudioResponse("<speak>There was a problem with the thermostat</speak>");
         }
     }
 }
