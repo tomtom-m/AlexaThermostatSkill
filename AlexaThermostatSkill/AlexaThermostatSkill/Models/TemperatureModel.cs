@@ -7,7 +7,10 @@ namespace BDRCustomSkill.Models
 {
     class TemperatureModel
     {
-        [JsonProperty("temperature")]
-        public double temperature { get; set; }
+        [JsonProperty("value")]
+        public double Temperature { get; set; }
+
+        [JsonProperty("scale")]
+        public string Scale => "Celcius";
     }
 }

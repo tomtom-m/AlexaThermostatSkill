@@ -27,13 +27,13 @@ namespace AlexaThermostatSkill
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public SkillResponse FunctionHandler(SkillRequest input, ILambdaContext context)
+        public async Task<SkillResponse> FunctionHandler(SkillRequest input, ILambdaContext context)
         {
             LambdaLogger.Log("Skill Request Received");
 
             if (input.Request.GetType() == typeof(LaunchRequest))
             {
-                return CreateAudioResponse("<speak>Hi there, this is the devcon thermostat skill</speak>");
+                return DefaultResponse();
 
             }
             else if (input.Request.GetType() == typeof(IntentRequest))
@@ -42,11 +42,13 @@ namespace AlexaThermostatSkill
                 switch (intent.Intent.Name)
                 {
                     case "GetTemperature":
-                        return CreateAudioResponse("<speak> The temperature is <say-as interpret-as='number'>22</say-as> degrees </speak>");
+                        var currentTemperature = await _thermostatService.GetTemperatureAsync(input.Session.User.AccessToken);
+
+                        return CreateAudioResponse($"<speak> The temperature is <say-as interpret-as='number'>{currentTemperature.Temperature}</say-as> degrees </speak>");
                     case "SetTemperature":
-                        var requestedTemperature = intent.Intent.Slots["temperature"].Value;
-                        //await _thermostatService.SetTemperatureAsync(input.Session.User.AccessToken, double.Parse(requestedTemperature));
-                        return CreateAudioResponse($"<speak>The temperature is set to  <say-as interpret-as='number'>{requestedTemperature}</say-as> degrees</speak>");
+
+                        return DefaultResponse();
+
                     default:
                         return DefaultResponse();
                 }

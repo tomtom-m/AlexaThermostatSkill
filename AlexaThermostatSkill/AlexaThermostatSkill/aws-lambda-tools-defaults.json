@@ -12,7 +12,7 @@
     "framework"     : "netcoreapp2.0",
     "function-runtime" : "dotnetcore2.0",
     "function-memory-size" : 128,
-    "function-timeout"     : 5,
+    "function-timeout"     : 15,
     "function-handler"     : "AlexaThermostatSkill::AlexaThermostatSkill.Function::FunctionHandler",
     "function-name"        : "Devcon",
     "function-role"        : "arn:aws:iam::123892937668:role/lambda_basic_execution",
