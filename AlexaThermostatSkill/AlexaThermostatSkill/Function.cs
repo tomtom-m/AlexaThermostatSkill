@@ -33,8 +33,7 @@ namespace AlexaThermostatSkill
 
             if (input.Request.GetType() == typeof(LaunchRequest))
             {
-                return CreateAudioResponse("<speak>Hi there Devcon. This is the thermostat skill</speak>");
-
+                return DefaultResponse();
             }
             else if (input.Request.GetType() == typeof(IntentRequest))
             {
@@ -46,11 +45,8 @@ namespace AlexaThermostatSkill
 
                         return CreateAudioResponse($"<speak> The temperature is <say-as interpret-as='number'>{currentTemperature.Temperature}</say-as> degrees </speak>");
                     case "SetTemperature":
-                        var requestedTemperature = intent.Intent.Slots["Temperature"].Value;
 
-                        await _thermostatService.SetTemperatureAsync(input.Session.User.AccessToken, Double.Parse(requestedTemperature));
-
-                        return CreateAudioResponse($"<speak>Ok, I've set the thermostat to <say-as interpret-as='number'>{requestedTemperature}</say-as> degrees</speak>");
+                        return DefaultResponse();
 
                     default:
                         return DefaultResponse();
